@@ -1,0 +1,44 @@
+name: Python CI
+
+on: [push, pull_request]
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13.1'
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: venv
+          key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-python-
+
+      - name: Run Black
+        run: black --check .
+
+      - name: Run Flake8
+        run: flake8 .
+
+      - name: Run Pytest with coverage
+        run: |
+          pip install coverage
+          coverage run -m pytest
+          coverage report
+          coverage html
