@@ -19,16 +19,16 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-          pip install -r requirements.txt
+          pip install -r requirements.txtFFFF
           pip install -r requirements-dev.txt
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3  
         with:
           path: venv
-          key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements.txt', '**/requirements-dev.txt') }}
           restore-keys: |
-            ${{ runner.os }}-python-
+            ${{ runner.os }}-venv-
 
       - name: Run Black
         run: black --check .
