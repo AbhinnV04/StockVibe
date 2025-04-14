@@ -20,7 +20,7 @@ def test_get_soup_success(mock_get):
 
     # Assess the mock request made
     assert isinstance(soup, BeautifulSoup)
-    assert soup.find("p").text == "Hi there"
+    assert soup.find("p").text == "Hi there" # type: ignore
     mock_get.assert_called_once()
 
 

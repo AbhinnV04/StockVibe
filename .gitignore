@@ -180,3 +180,4 @@ cython_debug/
 architecture_and_planning/
 *.csv
 old.py
+logs
