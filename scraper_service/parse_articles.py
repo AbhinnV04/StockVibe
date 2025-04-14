@@ -47,7 +47,7 @@ def parse_articles(soup: BeautifulSoup) -> list:
                 "a",
                 class_="news-link"
             ).text.strip()
-            if not title:
+            if not title or title == "":
                 title = "No title"
                 logger.warning("Missing title, using default='No title'")
 
@@ -97,3 +97,22 @@ def parse_articles(soup: BeautifulSoup) -> list:
             logger.error(f"Unexpected error while parsing article: {e}")
 
     return article_data
+
+if __name__ == "__main__":
+    from bs4 import BeautifulSoup
+
+    # Sample HTML with various issues to trigger logs
+    html = """
+    <div class="latest-news__story">
+        <time class="latest-news__date" datetime="invalid-date"></time>
+        <a class="news-link" href="/article-link">Article Title</a>
+        <span class="latest-news__source">Business Insider</span>
+    </div>
+    """
+
+    soup = BeautifulSoup(html, 'html.parser')
+    articles = parse_articles(soup)
+
+    print("\nParsed articles:")
+    for a in articles:
+        print(a)
