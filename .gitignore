@@ -173,7 +173,11 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# Vscode
+.vscode
 
 # my file
-tester.py
+architecture_and_planning/
 *.csv
+old.py
+logs
