@@ -7,7 +7,8 @@ from utils.decorators.retry_with_backoff import retry_with_backoff
 
 
 @retry_with_backoff(max_retries=3, base_delay=1)
-def get_soup(url):
+def get_soup(url) -> BeautifulSoup:
+    """Fetches content and parses"""    
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
