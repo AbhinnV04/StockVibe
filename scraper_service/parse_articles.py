@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 from datetime import datetime
+import json
 
 from utils.logger import get_logger
 
@@ -9,16 +10,36 @@ BASE_URL = "https://markets.businessinsider.com"
 logger = get_logger("scraper_service/parse_articles.py")
 
 
+def get_page_range(soup: BeautifulSoup) -> range:
+    """Returns the number of pages for a slug"""
+    nav = soup.find(
+        "nav",
+        class_="pagination"
+    )
+    if not nav:
+        return range(1, 2)  # single page
+
+    data_range = nav.get('data-pagination-range')
+    if not data_range:
+        return range(1, 2)  # single page
+
+    parsed_range = json.loads(data_range.replace("'", '"'))
+    range_list = parsed_range.get('range', [1])
+    return range(1, range_list[-1] + 1)
+
+
 def validate_date(date_str) -> str | None:
     """Validate date format MM/DD/YYYY HH:MM:SS AM/PM"""
     try:
         # Try to parse the date with the specific format from the website
         parsed_date = datetime.strptime(date_str, "%m/%d/%Y %I:%M:%S %p")
-        return parsed_date.strftime("%Y-%m-%dT%H:%M:%S")  # Return in ISO 8601 format
+        # Return in ISO 8601 format
+        return parsed_date.strftime("%Y-%m-%dT%H:%M:%S")
     except ValueError:
-        return None 
+        return None
 
-def parse_articles(soup: BeautifulSoup) -> list:
+
+def parse_articles(soup: BeautifulSoup) -> list[dict] | list[None]:
     """Parse data from a single article"""
     article_data = []
     articles = soup.find_all(
@@ -70,14 +91,14 @@ def parse_articles(soup: BeautifulSoup) -> list:
             else:
                 logger.warning("Missing article link, skipping article.")
                 continue
-            
+
             # Construct full link
             if relative_link.startswith("http"):
                 full_link = relative_link
             else:
                 full_link = BASE_URL + relative_link
 
-            # Append 
+            # Append
             article_data.append(
                 {
                     "date_time": date_time,
@@ -97,6 +118,7 @@ def parse_articles(soup: BeautifulSoup) -> list:
             logger.error(f"Unexpected error while parsing article: {e}")
 
     return article_data
+
 
 if __name__ == "__main__":
     from bs4 import BeautifulSoup
